@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kiskyv1 AI Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col h-screen">
+    <div class="bg-blue-600 text-white p-4 text-center">
+        <h1 class="text-xl font-bold">kiskyv1 AI Chat</h1>
+    </div>
+    <div id="chat-container" class="flex-1 p-4 overflow-y-auto">
+        <div id="chat-messages" class="space-y-4">
+            <div class="bg-gray-200 p-3 rounded-lg max-w-lg">
+                <p><strong>kiskyv1:</strong> Welcome to kiskyv1, an AI model that is really good. Type something to start!</p>
+            </div>
+        </div>
+    </div>
+    <div class="p-4 bg-white border-t">
+        <div class="flex space-x-2 max-w-2xl mx-auto">
+            <input
+                id="message-input"
+                type="text"
+                placeholder="Type your message..."
+                class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+                id="send-button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+                Send
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+
+        function addMessage(sender, text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `p-3 rounded-lg max-w-lg ${
+                isUser ? 'bg-blue-100 ml-auto' : 'bg-gray-200'
+            }`;
+            messageDiv.innerHTML = `<p><strong>${sender}:</strong> ${text}</p>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendToServer(userMessage) {
+            try {
+                const response = await fetch('http://localhost:8081/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage }),
+                });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                return `Error: Could not reach kiskyv1 server (${error.message}).`;
+            }
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage('You', message, true);
+
+            // Send to server and get response
+            const serverResponse = await sendToServer(message);
+            addMessage('kiskyv1', serverResponse);
+
+            // Clear input
+            messageInput.value = '';
+        }
+
+        // Send on button click
+        sendButton.addEventListener('click', sendMessage);
+
+        // Send on Enter key
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
