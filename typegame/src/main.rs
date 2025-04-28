@@ -5,9 +5,10 @@ fn display_menu() {
     println!("------------------");
     println!("a) Learn Rust Facts");
     println!("b) Learn Rust Types");
+    println!("c) Learn Rust I/O");
     println!("q) Quit Program");
     println!("------------------");
-    println!("Enter your choice (a/b/q): ");
+    println!("Enter your choice (a/b/c/q): ");
 }
 
 fn display_rust_facts() {
@@ -106,6 +107,103 @@ fn play_type_game() {
     }
 }
 
+fn play_io_quiz() {
+    println!("Welcome to the Rust I/O Learning Quiz!");
+    println!("Test your knowledge about Rust's input/output operations.\n");
+
+    let questions = vec![
+        (
+            "Which trait must be imported to use stdin()?",
+            "std::io",
+            "The std::io module provides I/O functionality"
+        ),
+        (
+            "What method is used to read a line from stdin into a String?",
+            "read_line",
+            "read_line(&mut String) reads a line from standard input"
+        ),
+        (
+            "How do you open a file for reading in Rust?",
+            "File::open",
+            "File::open() creates a new File instance for reading"
+        ),
+        (
+            "Which method creates or opens a file for writing?",
+            "File::create",
+            "File::create() opens a file in write-only mode"
+        ),
+        (
+            "What trait is required for reading from a file?",
+            "Read",
+            "The Read trait provides basic methods for reading bytes"
+        ),
+        (
+            "What trait is required for writing to a file?",
+            "Write",
+            "The Write trait provides basic methods for writing bytes"
+        ),
+        (
+            "Which method reads the entire contents of a file into a string?",
+            "read_to_string",
+            "read_to_string(&mut String) reads all contents into a string"
+        ),
+        (
+            "What function can quickly write a string to a file?",
+            "write_all",
+            "write_all() writes all bytes to an output"
+        ),
+        (
+            "Which type represents a buffered reader?",
+            "BufReader",
+            "BufReader<R> adds buffering to any reader"
+        ),
+        (
+            "What happens if File::open fails to open a file?",
+            "Result<T, E>",
+            "It returns a Result type that must be handled"
+        ),
+    ];
+
+    let mut score = 0;
+    let total_questions = questions.len();
+
+    for (index, (question, correct_answer, hint)) in questions.iter().enumerate() {
+        println!("Question {}: {}", index + 1, question);
+        let mut input = String::new();
+        
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read input");
+
+        let input = input.trim();
+        
+        if input.to_lowercase() == correct_answer.to_lowercase() {
+            println!("Correct! {}", hint);
+            score += 1;
+        } else {
+            println!(
+                "Incorrect. The answer is {}. {}",
+                correct_answer, hint
+            );
+        }
+        println!();
+    }
+
+    println!("Quiz Complete!");
+    println!("Your score: {}/{}", score, total_questions);
+    if score == total_questions {
+        println!("Perfect! You're a Rust I/O expert!");
+    } else if score >= total_questions / 2 {
+        println!("Good job! Keep learning about Rust's I/O operations!");
+    } else {
+        println!("Keep practicing! Rust I/O operations are important!");
+    }
+
+    println!("\nPress Enter to return to main menu...");
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read input");
+}
+
 fn main() {
     println!("Welcome to RustLearner!");
     
@@ -120,6 +218,7 @@ fn main() {
         match choice.trim().to_lowercase().as_str() {
             "a" => display_rust_facts(),
             "b" => play_type_game(),
+            "c" => play_io_quiz(),
             "q" => {
                 println!("Thank you for using RustLearner! Goodbye!");
                 break;
